@@ -3,12 +3,20 @@
 Installation of required packages:
 
 $ sudo apt-get update
+
 $ sudo apt-get upgrade
+
 $ sudo apt-get install python3
+
 $ sudo apt-get install python3-sqlalchemy
+
 $ sudo apt-get install qt4-designer
+
 $ sudo apt-get install python3-gpiozero
+
 $ sudo apt-get install sqlite3
+
+-
 
 QtStackedLayout
 
