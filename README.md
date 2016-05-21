@@ -1,30 +1,33 @@
-# How to create Questions/Questionary/Players and Delete Things?
+# How To: Install
 
-just run QubeHub.py 
+1. $ sudo apt-get update
+2. $ sudo apt-get upgrade
+3. $ sudo apt-get install python3
+4. $ sudo apt-get install python3-sqlalchemy
+5. $ sudo apt-get install qt4-designer
+6. $ sudo apt-get install python3-gpiozero
+7. $ sudo apt-get install sqlite3
+8. $ cd '/the/directory/where/Qube.py/is/located/'
+8. $ python3 Qube.py
+9. Have Fun!
 
-# two-and-a-half-women - Qube - 
+If you just want to run Qube you don't have to execute Step 5. You only need Qt4 Designer if you want to modify existing or create new .ui Files.
 
-Installation of required packages:
+# How To: QubeHub
 
-$ sudo apt-get update
+With QubeHub you can easily manage your existing Questions/Players and Questionaries.
 
-$ sudo apt-get upgrade
+What can you do with QubeHub?
 
-$ sudo apt-get install python3
-
-$ sudo apt-get install python3-sqlalchemy
-
-$ sudo apt-get install qt4-designer
-
-$ sudo apt-get install python3-gpiozero
-
-$ sudo apt-get install sqlite3
+1. Create Questions
+2. Create Player
+3. Create Questionaries
+4. Delete Questions
+5. Delete Questionaries
+6. Delete Player
+7. ...more to come
 
 -
-
-QtStackedLayout
-
-http://www.pythonschool.net/pyqt/switching-layouts/
 
 PyQt API
 
@@ -45,6 +48,8 @@ http://www.rspilab.com/gui-application-development-using-qt4-designer-and-pyqt-i
 SQLAlchemy
 
 http://pythoncentral.io/introductory-tutorial-python-sqlalchemy/
+
+http://www.sqlalchemy.org/
 
 
 
