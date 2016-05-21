@@ -18,7 +18,7 @@ If you just want to run Qube you don't have to execute Step 5. You only need Qt4
 
 # How To: QubeHub
 
-With QubeHub you can easily manage your existing Questions/Players and Questionaries.
+Want to create your own questions and make life more fun? With QubeHub you can easily manage your existing Questions/Players and Questionaries.
 
 What can you do with QubeHub?
 
