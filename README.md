@@ -1,3 +1,6 @@
+# Two and a Half Wo(men)
+official Repo from the Creators of Qube. What is Qube? With Qube you can experience a whole new level of quiz/buzzer action.
+Qube is fast and easy to learn but hard to master.
 # How To: Install
 
 1. $ sudo apt-get update
