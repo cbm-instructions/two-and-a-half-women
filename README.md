@@ -11,15 +11,13 @@ Qube is fast and easy to learn but hard to master.
 5. $ sudo apt-get install qt4-designer
 6. $ sudo apt-get install python3-gpiozero
 7. $ sudo apt-get install sqlite3
-8. $ cd '/the/directory/where/Qube.py/is/located/'
-8. $ python3 Qube.py
+8. $ cd 'to/this/repo'
+8. $ python3 Qube.py or  python3 QubeHub.py
 9. Have Fun!
 
-If you just want to run Qube you don't have to execute Step 5. You only need Qt4 Designer if you want to modify existing or create new .ui Files.
-
+If you just want to run Qube or QubeHub you don't have to execute Step 5. You only need Qt4 Designer if you want to modify existing or create new .ui Files.
 # How To: QubeHub
-
-Want to create your own questions and make life more fun? With QubeHub you can easily manage your existing Questions/Players and Questionaries.
+Want to create your own questions to challenge others and experience more fun? With QubeHub you can easily manage create your own Questions/Players and Questionaries or manage your existing ones.
 
 What can you do with QubeHub?
 
