@@ -1,5 +1,6 @@
-# Two and a Half Wo(men)
-official Repo from the Creators of Qube. What is Qube? With Qube you can experience a whole new level of quiz/buzzer action.
+# Two and a Half Wo(men) - The Qube Project -
+official Repo from the Creators of Qube. What is Qube you're asking? Qube brings Quiz Gaming to a whole new Level. Combined with the massive thrill of Buzzering Qube is the ultimate answer to all those People with a 'Never stop Learning'-Attitude and those who are never becoming old.
+
 Qube is fast and easy to learn but hard to master.
 # How To: Install
 
