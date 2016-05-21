@@ -31,7 +31,7 @@ What can you do with QubeHub?
 6. Delete Player
 7. ...more to come
 
--
+#Sources
 
 PyQt API
 
