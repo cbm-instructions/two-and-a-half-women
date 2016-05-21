@@ -26,10 +26,10 @@ session.commit()
  
 new_question = Question(name='Was ist eine If-Schleife?',
                    correct_answer='Das gibt es nicht',
-                   answer_one='Ein Halsband',
-                   answer_two='Das gibt es nicht',
-                   answer_three='Eine Mischung aus if Abfrage und for Schleife',
-                   answer_four='Das gleiche wie eine if Abfrage',
+                   answer_blue='Ein Halsband',
+                   answer_red='Das gibt es nicht',
+                   answer_green='Eine Mischung aus if Abfrage und for Schleife',
+                   answer_yellow='Das gleiche wie eine if Abfrage',
                    info='Das gibt es nicht! Merk es dir!',
                    questionary=new_questionary)
 session.add(new_question)
