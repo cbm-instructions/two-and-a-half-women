@@ -1,3 +1,7 @@
+# How to create Questions/Questionary/Players and Delete Things?
+
+just run QubeHub.py 
+
 # two-and-a-half-women - Qube - 
 
 Installation of required packages:

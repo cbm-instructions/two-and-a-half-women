@@ -10,7 +10,7 @@ Base = declarative_base()
 class Questionary(Base):
     __tablename__ = 'questionary'
     id = Column(Integer, primary_key=True)
-    name = Column(Text, nullable=False)
+    name = Column(Text, nullable=False, unique=True)
     lecture = Column(Text)
     category = Column(Text)
     questions = relationship("Question", back_populates="questionary")
@@ -18,7 +18,7 @@ class Questionary(Base):
 class Question(Base):
     __tablename__ = 'question'
     id = Column(Integer, primary_key=True)
-    name = Column(Text, nullable=False)
+    name = Column(Text, nullable=False, unique=True)
     points = Column(Integer, default=1)
     correct_answer = Column(Text, nullable=False)
     answer_blue = Column(Text, nullable=False)
@@ -32,7 +32,7 @@ class Question(Base):
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
-    nickname = Column(Text, nullable=False)
+    nickname = Column(Text, nullable=False, unique=True)
     email = Column(Text)
     points = Column(Integer, default=0)
  
