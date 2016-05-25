@@ -18,6 +18,11 @@ class MainWindow(QtGui.QStackedWidget):
         DBSession = sessionmaker(bind=engine)
         self.session = DBSession()
 
+        #populate combo boxes with database entries
+        self.populate_questionary_box()
+        self.populate_question_box()
+        self.populate_player_box()
+
         #set buttons for main view - cancel button was set in Qt4Designer
         QtCore.QObject.connect(self.main_create_question_button, QtCore.SIGNAL("clicked()"), self.go_to_create_question)
         QtCore.QObject.connect(self.main_create_questionary_button,QtCore.SIGNAL("clicked()"), self.go_to_create_questionary)
@@ -253,7 +258,6 @@ class MainWindow(QtGui.QStackedWidget):
         self.setCurrentWidget(self.main_view)
 
     def go_to_create_question(self):
-        self.populate_questionary_box()
         self.setCurrentWidget(self.create_question_view)
     
     def go_to_create_questionary(self):
