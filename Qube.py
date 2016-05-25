@@ -298,9 +298,7 @@ class MainWindow(QtGui.QStackedWidget):
         self.answer_labels_visible(True)
         #go to home screen
         self.setCurrentWidget(self.home_view)
-
-
-
+s
 ### DATABASE HELPER ###
     def get_questionaries(self):
         questionaries = self.session.query(Questionary).all()
@@ -311,28 +309,6 @@ class MainWindow(QtGui.QStackedWidget):
         self.player_one = users[0]
         if(self.one_player_mode == False):
             self.player_two = users[1]
-
-### DEPRECATED METHODS ###
-    def on_green_answer_button_press(self, channel):
-        print("Green pressed")
-        if(self.currentWidget() == self.question_view and self.buzzer_mode == False):
-            answer = self.current_question.answer_green
-            print("Logged Answer: " + answer)
-            self.show_result(answer)
-
-    def on_red_answer_button_press(self, channel):
-        print("Red pressed")
-        if(self.currentWidget() == self.question_view and self.buzzer_mode == False):
-            answer = self.current_question.answer_red
-            print("Logged Answer: " + answer)
-            self.show_result(answer)
-
-    def on_blue_answer_button_press(self, channel):
-        print("Blue pressed")
-        if(self.currentWidget() == self.question_view and self.buzzer_mode == False):
-            answer = self.current_question.answer_blue
-            print("Logged Answer: " + answer)
-            self.show_result(answer)
 
 if __name__ == '__main__':
     app = QtGui.QApplication([])
