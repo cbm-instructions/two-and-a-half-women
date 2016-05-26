@@ -6,7 +6,11 @@ Qube is fast and easy to learn but hard to master.
 > :warning:
   The following commands are only working on Linux. If you run another operating system you have to modify the commands to get the appropriate results.
 
-# How To: Prerequisites
+---
+
+### How To: Prerequisites
+Run the following commands on the LX Terminal to get all required packages:
+
 1. `$ sudo apt-get update`
 2. `$ sudo apt-get upgrade`
 3. `$ sudo apt-get install python3`
@@ -20,13 +24,17 @@ Qube is fast and easy to learn but hard to master.
 If you just want to run Qube or QubeHub you don't have to execute Step 8.
 You only need Qt4 Designer if you want to modify existing or create new .ui Files.
 
-#How To: Run Qube or QubeHub
+---
+
+### How To: Run Qube or QubeHub
 1. Fulfill the prerequisites
 2. `$ cd src/qube`
 3. `$ python3 Qube.py` or `$ python3 QubeHub.py`
 4. Have Fun!
 
-# How To: QubeHub
+---
+
+### How To: QubeHub
 Want to create your own questions to challenge others and experience more fun? With QubeHub you can easily manage create your own Questions/Players and Questionaries or manage your existing ones.
 
 What can you do with QubeHub?
@@ -39,7 +47,7 @@ What can you do with QubeHub?
 6. Delete Player
 7. ...more to come
 
-#Sources
+### Sources
 
 PyQt API
 
@@ -66,6 +74,3 @@ SQLAlchemy
 http://pythoncentral.io/introductory-tutorial-python-sqlalchemy/
 
 http://www.sqlalchemy.org/
-
-
-
