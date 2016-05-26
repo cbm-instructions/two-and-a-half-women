@@ -7,7 +7,6 @@ Qube is fast and easy to learn but hard to master.
   The following commands are only working on Linux. If you run another operating system you have to modify the commands to get the appropriate results.
 
 # How To: Prerequisites
-
 1. 'sudo apt-get update'
 2. 'sudo apt-get upgrade'
 3. 'sudo apt-get install python3'
@@ -22,7 +21,6 @@ If you just want to run Qube or QubeHub you don't have to execute Step 8.
 You only need Qt4 Designer if you want to modify existing or create new .ui Files.
 
 #How To: Run Qube or QubeHub
-
 1. Fulfill the prerequisites
 2. 'cd src/qube'
 3. 'python3 Qube.py' or 'python3 QubeHub.py'
