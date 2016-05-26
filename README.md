@@ -7,23 +7,23 @@ Qube is fast and easy to learn but hard to master.
   The following commands are only working on Linux. If you run another operating system you have to modify the commands to get the appropriate results.
 
 # How To: Prerequisites
-1. 'sudo apt-get update'
-2. 'sudo apt-get upgrade'
-3. 'sudo apt-get install python3'
-4. 'sudo apt-get install python3-gpiozero'
-5. 'sudo apt-get install sqlite3'
-6. 'sudo apt-get install python3-sqlalchemy' 
-7. 'sudo apt-get install python3-pyqt4'
-8. 'sudo apt-get install qt4-designer'
-9. 'git clone https://github.com/cbm-instructions/two-and-a-half-women.git'
+1. `$ sudo apt-get update`
+2. `$ sudo apt-get upgrade`
+3. `$ sudo apt-get install python3`
+4. `$ sudo apt-get install python3-gpiozero`
+5. `$ sudo apt-get install sqlite3`
+6. `$ sudo apt-get install python3-sqlalchemy` 
+7. `$ sudo apt-get install python3-pyqt4`
+8. `$ sudo apt-get install qt4-designer`
+9. `$ git clone https://github.com/cbm-instructions/two-and-a-half-women.git`
 
 If you just want to run Qube or QubeHub you don't have to execute Step 8.
 You only need Qt4 Designer if you want to modify existing or create new .ui Files.
 
 #How To: Run Qube or QubeHub
 1. Fulfill the prerequisites
-2. 'cd src/qube'
-3. 'python3 Qube.py' or 'python3 QubeHub.py'
+2. `$ cd src/qube`
+3. `$ python3 Qube.py` or `$ python3 QubeHub.py`
 4. Have Fun!
 
 # How To: QubeHub
