@@ -41,16 +41,6 @@ What can you do with QubeHub?
 6. Delete Player
 7. ...more to come
 
-#How To: Read the Instructions
-
-1. Fulfill the prerequisites
-2. 'cd jekyll-uno/'
-3. 'sudo apt-get install bundler'
-4. 'bundle install'
-5. 'jekyll serve'
-6. Access via: [http://localhost:4000/jekyll-uno](http://localhost:4000/jekyll-uno)
-7. Have Fun!
-
 #Sources
 
 PyQt API
