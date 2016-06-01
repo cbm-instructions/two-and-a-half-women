@@ -5,9 +5,11 @@ import time
 from database.declare import User, Base, Question, Questionary
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import update
 import os
 
 GPIO.setmode(GPIO.BOARD)
+
 one_player_button = 12
 two_player_button = 11
 navi_button = 13
@@ -31,16 +33,21 @@ GPIO.setup(yellow_button, GPIO.IN)
 #setup database connection and session
 engine = create_engine('sqlite:///database/qube.db')
 Base.metadata.bind = engine
-
 DBSession = sessionmaker()
 DBSession.bind = engine
-
+        
 class MainWindow(QtGui.QStackedWidget):
+    #catch a signal from the main thread
+    updated = QtCore.pyqtSignal(int)
+    
     def __init__(self):
         super(MainWindow, self).__init__()
         #load design from Qt4Designer
-        uic.loadUi('views/main_2.ui', self)
+        uic.loadUi('views/main.ui', self)
 
+        #receive the signal and call self.button_handler
+        self.updated.connect(self.button_handler)
+        
         #start Session
         self.session = DBSession()
 
@@ -55,20 +62,19 @@ class MainWindow(QtGui.QStackedWidget):
         self.timer.timeout.connect(self.update_countdown_display)
 
         #add events to gpio pins
-        GPIO.add_event_detect(one_player_button, GPIO.FALLING, callback=self.on_player_press, bouncetime=500)
-        GPIO.add_event_detect(two_player_button, GPIO.FALLING, callback=self.on_player_press, bouncetime=500)
-        GPIO.add_event_detect(navi_button, GPIO.FALLING, callback=self.on_navi_press, bouncetime=500)
-        GPIO.add_event_detect(green_button, GPIO.FALLING, callback=self.on_answer_button_press, bouncetime=500)
-        GPIO.add_event_detect(blue_button, GPIO.FALLING, callback=self.on_answer_button_press, bouncetime=500)
-        GPIO.add_event_detect(red_button, GPIO.FALLING, callback=self.on_answer_button_press, bouncetime=500)
-        GPIO.add_event_detect(buzzer_one, GPIO.FALLING, callback=self.on_buzzer_press, bouncetime=500)
-        GPIO.add_event_detect(yellow_button, GPIO.FALLING, callback=self.on_answer_button_press, bouncetime=500)
-        GPIO.add_event_detect(buzzer_two, GPIO.FALLING, callback=self.on_buzzer_press, bouncetime=500)
+        GPIO.add_event_detect(one_player_button, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
+        GPIO.add_event_detect(two_player_button, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
+        GPIO.add_event_detect(navi_button, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
+        GPIO.add_event_detect(green_button, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
+        GPIO.add_event_detect(blue_button, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
+        GPIO.add_event_detect(red_button, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
+        GPIO.add_event_detect(buzzer_one, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
+        GPIO.add_event_detect(yellow_button, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
+        GPIO.add_event_detect(buzzer_two, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
 
         self.start_new_game()
 
-    ### ON PRESS METHODS ###
-
+### ON PRESS METHODS ###
     def on_buzzer_press(self, channel):
         print("Buzzer pressed")
         print(self.buzzer_mode)
@@ -77,7 +83,7 @@ class MainWindow(QtGui.QStackedWidget):
                 print("Player One's turn")
                 self.buzzer_player = self.player_one
             elif (channel == buzzer_two):
-                print("Player One's turn")
+                print("Player Two's turn")
                 self.buzzer_player = self.player_two
             self.buzzer_mode = False
             print ("Buzzer Mode finished")
@@ -88,7 +94,7 @@ class MainWindow(QtGui.QStackedWidget):
     def on_answer_button_press(self, channel):
         answer = "Default Answer"
         print("Answer pressed")
-        if(self.currentWidget() == self.question_view and self.buzzer_mode == False):
+        if(self.currentWidget() == self.question_view and self.buzzer_mode == False and self.answer_pressed == False):
             if (channel == green_button):
                 print("Green pressed")
                 answer = self.current_question.answer_green
@@ -102,11 +108,16 @@ class MainWindow(QtGui.QStackedWidget):
                 print("Yellow pressed")
                 answer = self.current_question.answer_yellow
             print("Logged Answer: " + answer)
+            self.answer_pressed = True
             self.show_result(answer)
 
 
-    def on_navi_press(self, channel):
-        print("Continue Pressed")
+    #send the signal if a button is pressed
+    def on_button_press(self, channel):
+        self.updated.emit(channel)
+
+    def on_navi_press(self):
+        print("Navi pressed")
         if (self.currentWidget() == self.introduction_view):
             if (self.one_player_mode == False):
                 print("Two Player Mode")
@@ -121,11 +132,11 @@ class MainWindow(QtGui.QStackedWidget):
             else:
                 self.next_question_label.hide()
                 self.info_label.hide()
-                self.set_question_view()
+                self.show_question()
                 self.answer_labels_visible(True)
         elif (self.currentWidget() == self.end_view):
             self.start_new_game()
-
+    
     def on_player_press(self, channel):
         print("Player Button pressed")
         if (self.currentWidget() == self.home_view):
@@ -151,9 +162,10 @@ class MainWindow(QtGui.QStackedWidget):
         if self.timer_start_value <= 0:
             self.stop_timer()
             if (self.buzzer_player == self.player_one):
-                if(self.one_player_mode == False):
-                    self.buzzer_player = self.player_two
-
+                self.buzzer_player = self.player_two
+            else:
+                self.buzzer_player = self.player_one
+                
     def stop_timer(self):
         self.timer.stop()
         self.countdown_lcd.hide()
@@ -161,15 +173,16 @@ class MainWindow(QtGui.QStackedWidget):
 
 ### SHOW METHODS ###
     def show_question(self):
-        self.timer_start_value = 4
-        self.answer_pressed = False
-        self.next_question_text_label.hide()
+        #reset to default labels
+        self.reset_question_view()
+        
         self.questions = self.current_questionary.questions
         self.total_questions = len(self.questions)
 
         #set Question Name
         self.current_question = self.questions[self.question_counter]
-        self.question_title_label.setText("Question " + str(self.question_counter + 1) + ": " + self.current_question.name)
+        self.question_number_label.setText("Question " + str(self.question_counter + 1) + ": ")
+        self.question_title_label.setText(self.current_question.name)
 
         #set Answers
         self.red_answer_label.setText(self.current_question.answer_red)
@@ -205,17 +218,20 @@ class MainWindow(QtGui.QStackedWidget):
             self.end_title_label.setStyleSheet('QLabel#en_title_label {color: green}')
             if (self.player_one_score == self.player_two_score):
                 self.end_title_label.setText("Draw")
-                
-            #save players score to database
-            self.player_one.points += self.player_one_score
+            #set player two points
             self.player_two.points += self.player_two_score
-            self.session.commit()
+                
+        #set player one points
+        self.player_one.points += self.player_one_score
+        #save players score to database
+        self.session.commit()
             
     def show_result(self, answer):
-        self.answer_pressed = True
+        self.show_end_points_labels()
         if (self.timer.isActive() == True):
             self.stop_timer()
         self.countdown_lcd.hide()
+        self.question_number_label.hide()
         #set info
         self.answer_labels_visible(False)
         #show next question label/button
@@ -227,22 +243,54 @@ class MainWindow(QtGui.QStackedWidget):
         self.info_label.show()
         #validate answer
         correct_answer = self.current_question.correct_answer
+        print("Correct Answer: " + correct_answer)
         if (correct_answer == answer):
             #set Title
             self.question_title_label.setText("Correct")
             self.question_title_label.setStyleSheet('QLabel#question_title_label {color: green}')
-            if(self.buzzer_player == self.player_one):
-                self.player_one_score += 1
-            elif(self.buzzer_player == self.player_two):
-                self.player_two_score += 1
-            self.update_player_labels()
+            self.set_points()
         else:
             #set Title
             self.question_title_label.setText("Wrong")
             self.question_title_label.setStyleSheet('QLabel#question_title_label {color: red}')
 
+    def set_points(self):
+        if (self.one_player_mode == True):
+            self.player_one_score += 1
+        else:
+            if(self.buzzer_player == self.player_one):
+                self.player_one_score += 1
+            elif(self.buzzer_player == self.player_two):
+                self.player_two_score += 1
+        self.update_player_labels()
+        
 
 ### HELPER METHODS ###
+    def set_player_labels(self):
+        print(self.player_one.nickname)
+        self.player_one_label.setText(self.player_one.nickname)
+        self.end_player_one_label.setText(self.player_one.nickname)
+        if (self.one_player_mode == False):
+            print(self.player_two.nickname)
+            self.player_two_label.setText(self.player_two.nickname)
+            self.end_player_two_label.setText(self.player_two.nickname)
+        
+    def button_handler(self, button):
+        buzzer_buttons = [buzzer_one, buzzer_two]
+        answer_buttons = [green_button, blue_button, red_button, yellow_button]
+        player_buttons = [one_player_button, two_player_button]
+        
+        if (button == navi_button):
+            self.on_navi_press()
+        elif button in buzzer_buttons:
+            self.on_buzzer_press(button)
+        elif button in answer_buttons:
+            self.on_answer_button_press(button)
+        elif button in player_buttons:
+            self.on_player_press(button)
+        else:
+            print("Button unknown")
+            
     def update_player_labels(self):
         self.player_one_lcd.display(self.player_one_score)
         self.player_two_lcd.display(self.player_two_score)
@@ -268,6 +316,18 @@ class MainWindow(QtGui.QStackedWidget):
             self.player_two_label.hide()
             self.player_one_lcd.hide()
             self.player_two_lcd.hide()
+
+    def show_end_points_labels(self):
+        self.end_player_one_label.show()
+        self.end_player_one_lcd.show()
+        #show player labels and score
+        if(self.one_player_mode == False):
+            self.player_two_label.show()
+            self.player_two_lcd.show()
+        else:
+            self.end_player_two_label.hide()
+            self.end_player_two_lcd.hide()
+            
 
     def answer_labels_visible(self, visible):
         if(visible == True):
@@ -296,9 +356,21 @@ class MainWindow(QtGui.QStackedWidget):
         self.next_question_label.hide()
         self.question_title_label.setStyleSheet('QLabel#question_title_label {color: black}')
         self.answer_labels_visible(True)
+        self.update_player_labels()
+        self.question_number_label.show()
         #go to home screen
         self.setCurrentWidget(self.home_view)
-s
+
+    def reset_question_view(self):
+        self.question_number_label.show()
+        self.timer_start_value = 4
+        self.answer_pressed = False
+        self.next_question_text_label.hide()
+        self.question_title_label.setStyleSheet('QLabel#question_title_label {color: black}')
+        if (self.one_player_mode == False):
+            self.buzzer_mode = True
+        
+
 ### DATABASE HELPER ###
     def get_questionaries(self):
         questionaries = self.session.query(Questionary).all()
@@ -306,9 +378,10 @@ s
 
     def get_user(self):
         users = self.session.query(User).all()
-        self.player_one = users[0]
+        self.player_one = users[2]
         if(self.one_player_mode == False):
             self.player_two = users[1]
+        self.set_player_labels()
 
 if __name__ == '__main__':
     app = QtGui.QApplication([])
