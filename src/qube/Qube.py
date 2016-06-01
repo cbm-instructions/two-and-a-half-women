@@ -5,6 +5,7 @@ import time
 from database.declare import User, Base, Question, Questionary
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import update
 import os
 
 GPIO.setmode(GPIO.BOARD)
@@ -217,16 +218,13 @@ class MainWindow(QtGui.QStackedWidget):
             self.end_title_label.setStyleSheet('QLabel#en_title_label {color: green}')
             if (self.player_one_score == self.player_two_score):
                 self.end_title_label.setText("Draw")
-                
-            #save players score to database
-            #TODO: is not working
-            print(self.player_one_score)
-            print(self.player_two_score)
-            print(self.player_one.points)
-            print(self.player_two.points)
-            self.player_one.points += self.player_one_score
+            #set player two points
             self.player_two.points += self.player_two_score
-            self.session.commit()
+                
+        #set player one points
+        self.player_one.points += self.player_one_score
+        #save players score to database
+        self.session.commit()
             
     def show_result(self, answer):
         self.show_end_points_labels()
