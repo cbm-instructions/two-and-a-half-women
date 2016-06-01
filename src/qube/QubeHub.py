@@ -113,7 +113,7 @@ class MainWindow(QtGui.QStackedWidget):
         
     def create_question(self):
         success = False
-        correct_answer = ""
+        correct_answer = "Placeholder"
         
         #fetch question infos from gui
         name = self.create_question_question_field.text()
@@ -124,15 +124,20 @@ class MainWindow(QtGui.QStackedWidget):
         questionary_name = str(self.create_question_questionary_box.currentText())
         info = self.create_question_info_text.toPlainText()
 
+        print(self.create_question_answer_one_button.isChecked())
+        print(self.create_question_answer_two_button.isChecked())
+        print(self.create_question_answer_three_button.isChecked())
+        print(self.create_question_answer_four_button.isChecked())
+        
         #find correct answer
         if(self.create_question_answer_one_button.isChecked() == True):
             correct_answer = answer_one
         elif(self.create_question_answer_two_button.isChecked() == True):
-            correct_anser = answer_two
+            correct_answer = answer_two
         elif(self.create_question_answer_three_button.isChecked() == True):
-            correct_anser = answer_three
+            correct_answer = answer_three
         elif(self.create_question_answer_four_button.isChecked() == True):
-            correct_anser = answer_four
+            correct_answer = answer_four
         print("The correct Answer is :" + correct_answer)
 
         #shuffle the ansers
