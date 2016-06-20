@@ -21,6 +21,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import update
 import os
+import random
 
 #set variables for communication with arduino over usb serial
 DEVICE = '/dev/ttyACM'+str(com)
@@ -35,16 +36,12 @@ two_player_button = 11
 navi_button = 13
 buzzer_one = 15
 buzzer_two = 31
-buzzer_one_led = 40
-buzzer_two_led = 38
 green_button = 16
 blue_button = 22
 red_button = 18
 yellow_button = 29
 
 #setup buttons and leds
-GPIO.setup(buzzer_one_led, GPIO.OUT)
-GPIO.setup(buzzer_two_led, GPIO.OUT)
 GPIO.setup(one_player_button, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(two_player_button, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(navi_button, GPIO.IN, pull_up_down = GPIO.PUD_UP)
@@ -109,11 +106,13 @@ class MainWindow(QtGui.QStackedWidget):
         if (self.currentWidget() == self.question_view and self.buzzer_mode == True):
             if (channel == buzzer_one):
                 print("Player One's turn")
-                self.buzzer_led_visible("1")
+                #turn buzzer one led on
+                self.sendToArduino("3")
                 self.buzzer_player = self.player_one
             elif (channel == buzzer_two):
                 print("Player Two's turn")
-                self.buzzer_led_visible("2")
+                #turn buzzer two led on
+                self.sendToArduino("4")
                 self.buzzer_player = self.player_two
             self.buzzer_mode = False
             print ("Buzzer Mode finished")
@@ -123,25 +122,37 @@ class MainWindow(QtGui.QStackedWidget):
 
     def on_answer_button_press(self, channel):
         answer = "Default Answer"
-        print("Answer pressed")
+        print("colored Button pressed")
         print(channel)
-        if(self.currentWidget() == self.question_view and self.buzzer_mode == False and self.answer_pressed == False):
-            self.buzzer_led_visible("none")                              
+        #turn buzzer leds off
+        self.sendToArduino("5")
+        if (self.currentWidget() == self.number_view):
+            print("Number pressed")
             if (channel == green_button):
                 print("Green pressed")
-                self.sendToArduino("1")
+                self.number_questions = int(self.green_number_label.text())
+            elif(channel == red_button):
+                print("Red pressed")
+                self.number_questions = int(self.red_number_label.text())
+            elif (channel == blue_button):
+                print("Blue pressed")
+                self.number_questions = int(self.blue_number_label.text())
+            elif(channel == yellow_button):
+                print("Yellow pressed")
+                self.number_questions = int(self.yellow_number_label.text())
+        if(self.currentWidget() == self.question_view and self.buzzer_mode == False and self.answer_pressed == False):                           
+            print("Answer pressed")
+            if (channel == green_button):
+                print("Green pressed")
                 answer = self.current_question.answer_green
             elif(channel == red_button):
                 print("Red pressed")
-                self.sendToArduino("2")
                 answer = self.current_question.answer_red
             elif (channel == blue_button):
                 print("Blue pressed")
-                self.sendToArduino("3")
                 answer = self.current_question.answer_blue
             elif(channel == yellow_button):
                 print("Yellow pressed")
-                self.sendToArduino("4")
                 answer = self.current_question.answer_yellow
             print("Logged Answer: " + answer)
             self.answer_pressed = True
@@ -156,14 +167,15 @@ class MainWindow(QtGui.QStackedWidget):
         print("Navi pressed")
         print(channel)
         if (self.currentWidget() == self.introduction_view):
+            #set player mode
             if (self.one_player_mode == False):
                 print("Two Player Mode")
                 self.buzzer_mode = True
                 print ("Buzzer Mode started")
-            self.setCurrentWidget(self.question_view)
-            self.continue_game()
+            self.setCurrentWidget(self.number_view)
+            self.show_number_view()
         elif (self.currentWidget() == self.question_view and self.answer_pressed == True):
-            if (self.question_counter == self.total_questions):
+            if (self.question_counter == self.number_questions):
                 self.setCurrentWidget(self.end_view)
                 self.show_end_view()
             else:
@@ -173,6 +185,10 @@ class MainWindow(QtGui.QStackedWidget):
                 self.answer_labels_visible(True)
         elif (self.currentWidget() == self.end_view):
             self.start_new_game()
+        elif (self.currentWidget() == self.number_view):
+            self.setCurrentWidget(self.question_view)
+            self.show_question()
+          
     
     def on_player_press(self, channel):
         print("Player Button pressed")
@@ -200,10 +216,12 @@ class MainWindow(QtGui.QStackedWidget):
             self.stop_timer()
             if (self.buzzer_player == self.player_one):
                 self.buzzer_player = self.player_two
-                self.buzzer_led_visible("2")
+                #turn buzzer one led on
+                self.sendToArduino("4")
             else:
                 self.buzzer_player = self.player_one
-                self.buzzer_led_visible("1")
+                #turn buzzer two led on
+                self.sendToArduino("3")
                 
     def stop_timer(self):
         self.timer.stop()
@@ -216,15 +234,13 @@ class MainWindow(QtGui.QStackedWidget):
         #reset to default labels
         self.reset_question_view()
         
-        self.questions = self.current_questionary.questions
-        self.total_questions = len(self.questions)
-        print(self.total_questions)
         print("Question Counter vor")
         print(self.question_counter)
 
+        self.index_list = random.sample(range(0,self.total_questions),self.number_questions);
+
         #set Question Name
-        self.current_question = self.questions[self.question_counter]
-        #self.question_number_label.setText("Question " + str(self.question_counter + 1) + ": ")
+        self.current_question = self.questions[self.index_list[self.question_counter]]
         self.question_title_label.setText("Question " + str(self.question_counter + 1) + ": " + self.current_question.name)
 
         #set Answers
@@ -243,7 +259,8 @@ class MainWindow(QtGui.QStackedWidget):
         print(self.question_counter)
         
     def show_end_view(self):
-        #self.sendToArduino("5")
+        #show disco light
+        self.sendToArduino("2")
         winner_name = "Placeholder"
         #display points
         self.end_player_one_lcd.display(self.player_one_score)
@@ -253,7 +270,8 @@ class MainWindow(QtGui.QStackedWidget):
             #calculate the winner
             if(self.player_one_score < self.player_two_score):
                 #set winner label
-                winner_name = self.player_two.nicknameanswer_labels_visible
+                winner_name = self.player_two.nickname
+                #answer_labels_visible(True)
                 self.end_player_two_label.setStyleSheet('QLabel#en_title_label {color: green}')
                 self.end_player_one_label.setStyleSheet('QLabel#en_title_label {color: red}')
             elif(self.player_one_score > self.player_two_score):
@@ -293,15 +311,42 @@ class MainWindow(QtGui.QStackedWidget):
         correct_answer = self.current_question.correct_answer
         print("Correct Answer: " + correct_answer)
         if (correct_answer == answer):
+            #blink green
+            self.sendToArduino("1")
             #set Title
             self.question_title_label.setText("Correct")
             self.question_title_label.setStyleSheet('QLabel#question_title_label {color: green}')
             self.set_points()
         else:
+            #blink red
+            self.sendToArduino("0")
             #set Title
             self.question_title_label.setText("Wrong")
             self.question_title_label.setStyleSheet('QLabel#question_title_label {color: red}')
 
+    def show_number_view(self):
+        self.get_questionaries()
+
+        self.questions = self.current_questionary.questions
+        self.total_questions = len(self.questions)
+        print(self.total_questions)
+        number_yellow = self.total_questions
+        number_green = int(self.total_questions  * 0.75)
+        number_blue = int(self.total_questions  * 0.5)
+        number_red = int(self.total_questions  * 0.25)
+        
+        string_number_yellow = str(number_yellow)
+        string_number_green = str(number_green)
+        string_number_blue = str(number_blue)
+        string_number_red = str(number_red)
+
+        #set Number Labels
+        self.yellow_number_label.setText(string_number_yellow)
+        self.green_number_label.setText(string_number_green)
+        self.blue_number_label.setText(string_number_blue)
+        self.red_number_label.setText(string_number_red)
+
+### HELPER METHODS ###
     def set_points(self):
         if (self.one_player_mode == True):
             self.player_one_score += 1
@@ -312,27 +357,10 @@ class MainWindow(QtGui.QStackedWidget):
                 self.player_two_score += 1
         self.update_player_labels()
         
-
-### HELPER METHODS ###
+    #sends a number to arduino to control the lights
     def sendToArduino(self, number):
         print("Sending Number " + number + " to Arduino")
-        ser.write(number.encode())
-        
-    #sets the given led number on
-    #number can be 1, 2, both or none
-    def buzzer_led_visible(self, number):
-            if (number == "1"):
-                GPIO.output(buzzer_one_led, GPIO.HIGH)
-                GPIO.output(buzzer_two_led, GPIO.LOW)
-            if (number == "2"):
-                GPIO.output(buzzer_one_led, GPIO.LOW)
-                GPIO.output(buzzer_two_led, GPIO.HIGH)
-            if (number == "both"):
-                GPIO.output(buzzer_one_led, GPIO.HIGH)
-                GPIO.output(buzzer_two_led, GPIO.HIGH)
-            if (number == "none"):
-                GPIO.output(buzzer_one_led, GPIO.LOW)
-                GPIO.output(buzzer_two_led, GPIO.LOW)    
+        ser.write(number.encode())  
              
     def set_player_labels(self):
         print(self.player_one.nickname)
@@ -362,12 +390,7 @@ class MainWindow(QtGui.QStackedWidget):
     def update_player_labels(self):
         self.player_one_lcd.display(self.player_one_score)
         self.player_two_lcd.display(self.player_two_score)
-
-    def continue_game(self):
-      if (self.currentWidget() == self.question_view):
-          self.get_questionaries()
-          self.show_question()
-
+          
     def player_labels_visible(self, visible):
         if(visible == True):
             #show player labels and score
@@ -421,7 +444,6 @@ class MainWindow(QtGui.QStackedWidget):
         self.question_title_label.setStyleSheet('QLabel#question_title_label {color: black}')
         self.answer_labels_visible(True)
         self.update_player_labels()
-        #self.question_number_label.show()
         #go to home screen
         self.setCurrentWidget(self.home_view)
 

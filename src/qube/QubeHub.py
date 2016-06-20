@@ -48,7 +48,6 @@ class MainWindow(QtGui.QStackedWidget):
         QtCore.QObject.connect(self.delete_questionary_button,QtCore.SIGNAL("clicked()"), self.delete_questionary)
 
 ######## DELETE METHODS ########
-
     def delete_question(self):
         success = False
         #fetch question from db with selected name
@@ -110,7 +109,6 @@ class MainWindow(QtGui.QStackedWidget):
             self.populate_player_box()
 
 ######## CREATE METHODS ########
-        
     def create_question(self):
         success = False
         correct_answer = "Placeholder"
