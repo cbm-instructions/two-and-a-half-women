@@ -65,7 +65,7 @@ class MainWindow(QtGui.QStackedWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
         #load design from Qt4Designer
-        uic.loadUi('views/mainv2.ui', self)
+        uic.loadUi('views/main.ui', self)
 
         #receive the signal and call self.button_handler
         self.updated.connect(self.button_handler)
@@ -94,7 +94,7 @@ class MainWindow(QtGui.QStackedWidget):
         GPIO.add_event_detect(yellow_button, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
         GPIO.add_event_detect(buzzer_two, GPIO.FALLING, callback=self.on_button_press, bouncetime=500)
 
-        #self.showFullScreen()
+        self.showFullScreen()
 
         self.start_new_game()
 
@@ -131,15 +131,19 @@ class MainWindow(QtGui.QStackedWidget):
             if (channel == green_button):
                 print("Green pressed")
                 self.number_questions = int(self.green_number_label.text())
+                self.highlight_number_label("green")
             elif(channel == red_button):
                 print("Red pressed")
                 self.number_questions = int(self.red_number_label.text())
+                self.highlight_number_label("red")
             elif (channel == blue_button):
                 print("Blue pressed")
                 self.number_questions = int(self.blue_number_label.text())
+                self.highlight_number_label("blue")
             elif(channel == yellow_button):
                 print("Yellow pressed")
                 self.number_questions = int(self.yellow_number_label.text())
+                self.highlight_number_label("yellow")
         if(self.currentWidget() == self.question_view and self.buzzer_mode == False and self.answer_pressed == False):                           
             print("Answer pressed")
             if (channel == green_button):
@@ -186,10 +190,14 @@ class MainWindow(QtGui.QStackedWidget):
         elif (self.currentWidget() == self.end_view):
             self.start_new_game()
         elif (self.currentWidget() == self.number_view):
-            self.setCurrentWidget(self.question_view)
-            self.show_question()
+            try:
+                self.number_questions
+            except:
+                print("Please select a Number")
+            else:
+                self.setCurrentWidget(self.question_view)
+                self.show_question()
           
-    
     def on_player_press(self, channel):
         print("Player Button pressed")
         print(channel)
@@ -198,8 +206,11 @@ class MainWindow(QtGui.QStackedWidget):
                 print ("One Player Pressed")
                 self.one_player_mode = True
                 self.buzzer_mode = False
+                print(self.one_player_mode)
             elif (channel == two_player_button):
                 print ("Two Player Pressed")
+                self.one_player_mode = False
+                print(self.one_player_mode)
                 self.buzzer_mode = True
             self.get_user()
             self.setCurrentWidget(self.introduction_view)
@@ -249,11 +260,6 @@ class MainWindow(QtGui.QStackedWidget):
         self.green_answer_label.setText(self.current_question.answer_green)
         self.yellow_answer_label.setText(self.current_question.answer_yellow)
 
-        #hide Player_two labels
-        if(self.one_player_mode == True):
-            self.player_two_lcd.hide()
-            self.player_two_label.hide()
-
         self.question_counter += 1
         print("Question Counter nach")
         print(self.question_counter)
@@ -262,6 +268,8 @@ class MainWindow(QtGui.QStackedWidget):
         #show disco light
         self.sendToArduino("2")
         winner_name = "Placeholder"
+        #show all neccessary labels
+        self.show_end_points_labels()
         #display points
         self.end_player_one_lcd.display(self.player_one_score)
         self.end_title_label.setText("Congratulations. You made it.")
@@ -292,18 +300,16 @@ class MainWindow(QtGui.QStackedWidget):
             
     def show_result(self, answer):
         #show all neccessary labels
-        self.show_end_points_labels()
         #hide all labels from question view
         self.countdown_lcd.hide()
-        #self.question_number_label.hide()
         self.answer_labels_visible(False)
         #stop timer if it is still active
         if (self.timer.isActive() == True):
             self.stop_timer()
         #show info
-        info = self.current_question.info
-        self.info_label.setText(info)
-        self.info_label.show()
+        #info = self.current_question.info
+        #self.info_label.setText(info)
+        #self.info_label.show()
         #show next question label/button
         self.next_question_label.show()
         self.next_question_text_label.show()
@@ -347,6 +353,20 @@ class MainWindow(QtGui.QStackedWidget):
         self.red_number_label.setText(string_number_red)
 
 ### HELPER METHODS ###
+    def highlight_number_label(self, color):
+      self.green_number_label.setStyleSheet("font-weight: normal; font-size: 16px")
+      self.red_number_label.setStyleSheet("font-weight: normal; font-size: 16px")
+      self.blue_number_label.setStyleSheet("font-weight: normal; font-size: 16px")
+      self.yellow_number_label.setStyleSheet("font-weight: normal; font-size: 16px")
+      if (color == "green"):
+        self.green_number_label.setStyleSheet("font-weight: bold; font-size: 50px")
+      if (color == "red"):
+        self.red_number_label.setStyleSheet("font-weight: bold; font-size: 50px")
+      if (color == "blue"):
+        self.blue_number_label.setStyleSheet("font-weight: bold; font-size: 50px")
+      if (color == "yellow"):
+        self.yellow_number_label.setStyleSheet("font-weight: bold; font-size: 50px")
+        
     def set_points(self):
         if (self.one_player_mode == True):
             self.player_one_score += 1
@@ -392,6 +412,11 @@ class MainWindow(QtGui.QStackedWidget):
         self.player_two_lcd.display(self.player_two_score)
           
     def player_labels_visible(self, visible):
+        #hide every label
+        self.player_one_label.hide()
+        self.player_two_label.hide()
+        self.player_one_lcd.hide()
+        self.player_two_lcd.hide()
         if(visible == True):
             #show player labels and score
             self.player_one_label.show()
@@ -399,20 +424,21 @@ class MainWindow(QtGui.QStackedWidget):
             if(self.one_player_mode == False):
                 self.player_two_label.show()
                 self.player_two_lcd.show()
-        else:
-            self.player_one_label.hide()
-            self.player_two_label.hide()
-            self.player_one_lcd.hide()
-            self.player_two_lcd.hide()
 
     def show_end_points_labels(self):
+        print("Toggle End Labels")
+        print("One Player Mode")
+        print(self.one_player_mode)
+        print("Erst mal nur Player One LCD und label anzeigen")
         self.end_player_one_label.show()
         self.end_player_one_lcd.show()
-        #show player labels and score
+        #show player labels
         if(self.one_player_mode == False):
-            self.player_two_label.show()
-            self.player_two_lcd.show()
+            print("Ok ich zeige auch Player Two an")
+            self.end_player_two_label.show()
+            self.end_player_two_lcd.show()
         else:
+            print("Jetzt versetcke ich Player Two")
             self.end_player_two_label.hide()
             self.end_player_two_lcd.hide()
             
@@ -428,28 +454,37 @@ class MainWindow(QtGui.QStackedWidget):
             self.yellow_answer_label.hide()
             self.red_answer_label.hide()
 
-    #self method reset every variable to its default value
+    #method reset every variable to its default value
     def start_new_game(self):
         self.one_player_mode = False
         self.buzzer_mode = False
         self.answer_pressed = False
+        
         self.question_counter = 0
         self.total_questions = 0
         self.player_one_score = 0
         self.player_two_score = 0
         self.timer_start_value = 4
+
+        self.question_title_label.setStyleSheet('QLabel#question_title_label {color: black}')
+
+        #set all labels to default
         self.countdown_lcd.hide()
         self.info_label.hide()
         self.next_question_label.hide()
-        self.question_title_label.setStyleSheet('QLabel#question_title_label {color: black}')
-        self.answer_labels_visible(True)
         self.update_player_labels()
+        self.show_end_points_labels()
+        self.answer_labels_visible(True)
+        self.player_two_label.show()
+        self.player_two_lcd.show()
+        self.highlight_number_label("black")
+        
         #go to home screen
         self.setCurrentWidget(self.home_view)
 
     def reset_question_view(self):
-        #self.question_number_label.show()
-        self.timer_start_value = 4
+        self.player_labels_visible(True)
+        self.timer_start_value = 5
         self.answer_pressed = False
         self.next_question_text_label.hide()
         self.question_title_label.setStyleSheet('QLabel#question_title_label {color: black}')
